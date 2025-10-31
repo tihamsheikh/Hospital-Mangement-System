@@ -3,8 +3,11 @@ import hashlib
 from csv import (reader, writer, DictReader, DictWriter)
 from datetime import datetime
 from time import sleep
+from os import system as osys
+from platform import system as psys
 
 
+clear = lambda: osys("cls") if psys().lower().strip() == "windows" else osys("clear") 
 get_clean_input = lambda prompt: input(prompt).lower().strip()
 
 def get_user_info(db: str)-> tuple:
@@ -27,30 +30,30 @@ def get_user_info(db: str)-> tuple:
 
 def get_id(name: str)-> int:
     """
-        used to convert paitent name into an id
+        used to convert patient name into an id
     """
     name = f"{name}{datetime.now()}"
     hash_object = hashlib.md5(name.encode())  # encode string to bytes
     return int(hash_object.hexdigest(), 16) % (10 ** 8) # convert hex to integer (10** len of int)
 
 
-def write_paitent_info()-> None:
+def write_patient_info()-> None:
     """
-        takes paitent info from user and stores it in db (paitent_list.csv)
+        takes patient info from user and stores it in db (patient_list.csv)
     """
 
     base_dir = os.path.dirname(__file__)
-    user_list_path = os.path.join(base_dir, "database", "paitent_list.csv")
+    user_list_path = os.path.join(base_dir, "database", "patient_list.csv")
     # print(user_list_path)
 
     with open(user_list_path, "a", newline="\n") as fp:
         file = writer(fp)
         
-        paitent_name = get_clean_input("Paitent Name: ")
-        illness = get_clean_input("Paitent's Illness: ")
+        patient_name = get_clean_input("patient Name: ")
+        illness = get_clean_input("patient's Illness: ")
 
         # id, date, name, illness
-        file.writerow([get_id(paitent_name),datetime.now(),paitent_name,illness])
+        file.writerow([get_id(patient_name),datetime.now(),patient_name,illness])
     print("Information is recorded")
     sleep(2)
 
@@ -64,7 +67,7 @@ def update_db(key: str)-> dict:
 
     check = False
     base_dir = os.path.dirname(__file__)
-    user_list_path = os.path.join(base_dir, "database", "paitent_list.csv")
+    user_list_path = os.path.join(base_dir, "database", "patient_list.csv")
 
 
     old_data = get_clean_input(f"previous {key}: ")
@@ -105,7 +108,7 @@ def delete_data_db(key: str, value: str)-> dict:
 
     check = False
     base_dir = os.path.dirname(__file__)
-    user_list_path = os.path.join(base_dir, "database", "paitent_list.csv")
+    user_list_path = os.path.join(base_dir, "database", "patient_list.csv")
 
     with open(user_list_path) as fp:
         dict_list = list(DictReader(fp))
@@ -144,7 +147,7 @@ def search_drug()-> None:
     with open(user_list_path, "r") as fp:
         data = reader(fp)
         next(fp)
-        os.system("clear")
+        clear()
         for d in data:
             if search in d[1]:
                 print(f"Id: {d[0]}  Name: {d[1]}  Price: {d[2]}  Quantity: {d[3]}")
@@ -160,29 +163,52 @@ def add_drug_info()-> None:
     """
         inputs drug data(id, name, price, quantity) into db 
     """
-
+    checker = lambda id: id == ""
     base_dir = os.path.dirname(__file__)
     user_list_path = os.path.join(base_dir, "database", "drug_list.csv")
 
-    os.system("clear")
+    clear()
     # id, name, price, quantity
     print("Enter durg information")
+
     id = input("Id: ").strip()
     name = input("Name: ").lower().strip()
-    price = input("Price: ").strip()
-    quantity = input("Quantity: ").strip()
+    price = input("Price: ")
+    quantity = input("Quantity: ")
+
+
+    if "" in [id, name, price, quantity]:
+        clear()
+        print("Wront input")
+        sleep(1)
+        return 
+    
+    try: 
+        price = float(price)
+    except ValueError:
+        clear()
+        print("Put a number you mut")
+        sleep(1)
+        return
+    try:
+        quantity = int(quantity)
+    except ValueError:
+        clear()
+        print("Put a number you mut")
+        sleep(1)
+        return
 
     with open(user_list_path, "a", newline="\n") as fp:
 
         data = writer(fp)
-        data.writerow([id, name, price, quantity])
+        data.writerow([id, name, abs(float(price)), abs(int(quantity))])
         print("Data recorded")
         sleep(2)
 
 
 def update_drug_info(key: str, key_value: str)-> None:
     """
-        takes existing drug key=(id,name), key_value=(price,quantity, name)
+        takes existing drug key=(id), key_value=(price,quantity, name)
     """
 
     base_dir = os.path.dirname(__file__)
@@ -221,29 +247,33 @@ def update_drug_info(key: str, key_value: str)-> None:
     sleep(2)
 
 
-def view_paitent_info()-> None:
+def view_patient_info()-> None:
     """
-        inputing paitents name, provides with indepth info  
+        inputing patients name, provides with indepth info  
     """
 
     base_dir = os.path.dirname(__file__)
-    user_list_path = os.path.join(base_dir, "database", "paitent_list.csv")
+    user_list_path = os.path.join(base_dir, "database", "patient_list.csv")
     check = True
 
-    name = input("Paitent name: ").lower()
+    name = input("patient name: ").lower()
 
     with open(user_list_path) as fp:
         data = reader(fp)
         next(data)
 
+        clear()
         for item in data:
             if name == item[2]:
                 # print(item)
-                print(f"Appointment data: {item[1]}\nid: {item[0]}\nPaitent name: {item[2]}\nIllness: {item[3]}", end="\n\n")
+
+                print(f"Appointment data: {item[1]}\nid: {item[0]}\npatient name: {item[2]}\nIllness: {item[3]}", end="\n\n")
                 check = False
         if check:
             print(f"{name} does not exitst!!")
-    sleep(5)
+            sleep(4)
+            return
+    sleep(10)
 
 
 def get_list(type: str):
@@ -252,35 +282,44 @@ def get_list(type: str):
         """
         list = []
         variable = ""
-        prompt = f"Enter 'q' to quit\nEnter the {type}: "
-        while variable != 'q':
-            os.system("clear")
+        prompt = f"Enter the {type}: "
+        clear()
+        print("Enter 'q' to quit")
+        while True:
+            # os.system("clear")
             variable = input(prompt).lower().strip()
+            if variable == "q":
+                break 
             list.append(variable)
 
         return list
 
 
-def write_paitent_prescription():
+def write_patient_prescription():
     """
-        takes paitent info from user and stores it in db (paitent_prescription.csv)
+        takes patient info from user and stores it in db (patient_prescription.csv)
     """
 
     base_dir = os.path.dirname(__file__)
-    user_list_path = os.path.join(base_dir, "database", "paitent_prescription.csv")
+    user_list_path = os.path.join(base_dir, "database", "patient_prescription.csv")
     # print(user_list_path)
 
     with open(user_list_path, "a", newline="\n") as fp:
         file = writer(fp)
         
-        paitent_name = input("Paitent Name: ").lower().strip()
+        clear()
+        patient_name = input("patient Name: ").lower().strip()
+        
+        
         illness = get_list("Illness list: ")
         test = get_list("Tests list: ")
         drug = get_list("Drug list: ")
 
+
         # id, date, name, illness
-        file.writerow([paitent_name, illness, test, drug])
-        os.system("clear")
+        file.writerow([patient_name, illness, test, drug])
+        clear()
+
     print("Information is recorded")
     sleep(2)
 

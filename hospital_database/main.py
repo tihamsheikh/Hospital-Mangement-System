@@ -1,13 +1,17 @@
 import os
-from time import sleep
 import datetime
+from time import sleep
 from getpass import getpass
+from os import system as osys
+from platform import system as psys
 
 import user_pass_func
 import database_func
 
+clear = lambda: osys("cls") if psys().lower().strip() == "windows" else osys("clear") 
+
 def clear_terminal(prompt: str)-> None:
-    os.system("clear")
+    clear()
     print(prompt)
 
 get_clean_input = lambda prompt: input(prompt).lower().strip()
@@ -20,7 +24,7 @@ enter 'q' to quit
 >> """
 
 prompt_manager = """
-Press 1 to entry new paitent
+Press 1 to entry new patient
 Press 2 to update name or illness
 Press 3 delete data with name or id
 Press 4 to search a drug
@@ -30,8 +34,8 @@ enter '0' to logout
 >> """
 
 prompt_doctor = """
-Press 1 to check paitent info (name, illness etc)
-Press 2 to add paitents prescription
+Press 1 to check patient info (name, illness etc)
+Press 2 to add patients prescription
 enter '0' to go back
 >> """
 
@@ -68,8 +72,8 @@ while action != "q":
                     inner_action = input(prompt_manager).lower().strip()
 
                     if inner_action == "1":
-                        clear_terminal(f"{username} is writing paitent information")
-                        database_func.write_paitent_info()
+                        clear_terminal(f"{username} is writing patient information")
+                        database_func.write_patient_info()
 
                     elif inner_action == "2":
                         clear_terminal(f"{username} is updating information")
@@ -110,17 +114,17 @@ while action != "q":
                     elif inner_action == "6":
                         # Press 6 to update drug price or quantity information
                         clear_terminal(f"{username} is updating drug information")
-                        mode = get_clean_input("Press 1 for id\nPress 2 for name\n>> ")
+                        # mode = get_clean_input("Press 1 for id\nPress 2 for name\n>> ")
                         
-                        if mode == "1":
-                            clear_terminal(f"{username} is updating drug information")
-                            data = get_clean_input("Enter Id: ")
-                            database_func.update_drug_info("id", data)
+                        # if mode == "1":
+                        #     clear_terminal(f"{username} is updating drug information")
+                        data = get_clean_input("Enter Id: ")
+                        database_func.update_drug_info("id", data)
 
-                        elif mode == "2":
-                            clear_terminal(f"{username} is updating drug information")
-                            data = get_clean_input("Enter name: ")
-                            database_func.update_drug_info("name", data)
+                        # elif mode == "2":
+                        #     clear_terminal(f"{username} is updating drug information")
+                        #     data = get_clean_input("Enter name: ")
+                        #     database_func.update_drug_info("name", data)
                     
                     elif inner_action == "0":
                         break
@@ -132,12 +136,12 @@ while action != "q":
                 clear_terminal("")
                 print("Password did not match!!")
                 sleep(2)
-                os.system("clear")
+                clear()
         else:
             clear_terminal("")
-            print(f"{username} does not exists")
+            print(f"Username did not match!")
             sleep(2)
-            os.system("clear")
+            clear()
 
 
     elif action == "2":     # doctors action
@@ -157,22 +161,22 @@ while action != "q":
                 inner_action = ""
                 while inner_action != "0":
 
-                    os.system("clear")
+                    clear()
                     print(f"Current user {username}\n")
                     inner_action = input(prompt_doctor).lower().strip()
 
                     if inner_action == "1":
-                        clear_terminal(f"{username} is writing searching paitent information")
-                        database_func.view_paitent_info()
+                        clear_terminal(f"{username} is writing searching patient information")
+                        database_func.view_patient_info()
 
                     elif inner_action == "2":
                         clear_terminal(f"{username} is writing a pescription")
-                        database_func.write_paitent_prescription()
+                        database_func.write_patient_prescription()
 
                     elif inner_action == "0":
                         break
                     else:
-                        clear_terminal("")
+                        clear()
                         
             else:
                 clear_terminal("")
@@ -181,8 +185,8 @@ while action != "q":
                 
         else:
             clear_terminal("")
-            print(f"{username} does not exists")
+            print(f"Username did not match!")
             sleep(2)
    
-os.system("clear")
+clear()
 print("\033[1mThank you for using Monta Health management system\033[0m", end="\n\n")
