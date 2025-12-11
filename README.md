@@ -57,14 +57,13 @@ Passwords can be hashed using the **hashlib** library for better security.
 
 ## ⚙️ Requirments (if built-in not available)
 
-import os
-import datetime
-from time import sleep
-from getpass import getpass
-from platform import system as psys
-import hashlib
-from csv import reader, writer, DictReader, DictWriter
-
+- os
+- datetime
+- time
+- getpass
+- platform
+- hashlib
+- csv
 
 ### ⚙️ **Program Flow**
 
